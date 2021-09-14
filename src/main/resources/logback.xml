@@ -1,0 +1,89 @@
+<?xml version="1.0"  encoding="UTF-8" ?>
+<configuration>
+    <property name="pattern" value="%-5level %d{yyyy-MM-dd HH:mm:ss.SSS} %c  %M %thread %m %n"></property>
+    <!--level日志级别
+    c：完整名字
+    M：方法
+    m:message
+    n:换行
+    thread
+    -->
+    <property name="log_dir" value="logs"></property>
+    <appender name="console" class="ch.qos.logback.core.ConsoleAppender">
+        <!--控制流对象System.out-->
+        <target>System.err</target>
+        <!--日志消息格式-->
+        <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
+            <pattern>${pattern}</pattern>
+        </encoder>
+    </appender>
+    <!--db-->
+    <appender name="db" class="ch.qos.logback.classic.db.DBAppender">
+        <connectionSource class="ch.qos.logback.core.db.DataSourceConnectionSource">
+            <dataSource class="com.alibaba.druid.pool.DruidDataSource">
+                <username>SYSDBA</username>
+                <password>SYSDBA</password>
+                <driverClassName>com.xugu.cloudjdbc.Driver</driverClassName>
+                <url>jdbc:xugu://192.168.2.137:5112/system?char_set=utf8</url>
+            </dataSource>
+        </connectionSource>
+    </appender>
+    <!--&lt;!&ndash;日志文件输出&ndash;&gt;-->
+    <!--<appender name="file" class="ch.qos.logback.core.FileAppender">-->
+        <!--<file>${log_dir}/info.log</file>-->
+        <!--<encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">-->
+            <!--<pattern>${pattern}</pattern>-->
+        <!--</encoder>-->
+    <!--</appender>-->
+    <!--&lt;!&ndash;html消息格式&ndash;&gt;-->
+    <!--<appender name="htmlfile" class="ch.qos.logback.core.FileAppender">-->
+        <!--<file>${log_dir}/info.html</file>-->
+        <!--<encoder class="ch.qos.logback.core.encoder.LayoutWrappingEncoder">-->
+            <!--<layout class="ch.qos.logback.classic.html.HTMLLayout"></layout>-->
+            <!--<pattern>${pattern}</pattern>-->
+        <!--</encoder>-->
+    <!--</appender>-->
+
+    <!--拆分日志-->
+    <!--日志文件输出-->
+    <appender name="roll_file" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${log_dir}/roll.log</file>
+
+        <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+            <!--按时间和压缩格式声明文件名-->
+            <fileNamePattern>${log_dir}/roll-%d{yyyy-MM-dd}.log_%i</fileNamePattern>
+            <!--文件大小拆分-->
+            <maxFileSize>10MB</maxFileSize>
+        </rollingPolicy>
+        <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
+            <pattern>${pattern}</pattern>
+        </encoder>
+        <!--日志级别过滤器-->
+        <filter class="ch.qos.logback.classic.filter.LevelFilter">
+            <!--日志的过滤规则-->
+            <level>ERROR</level>
+            <onMatch>ACCEPT</onMatch>
+            <onMismatch>DENY</onMismatch>
+        </filter>
+    </appender>
+    <!--异步日志-->
+    <appender name="async" class="ch.qos.logback.classic.AsyncAppender">
+        <!--指定具体的appender-->
+        <appender-ref ref="roll_file"></appender-ref>
+    </appender>
+
+    <!--&lt;!&ndash;自定义logger,包（文件夹）下&ndash;&gt;-->
+    <!--<logger name="com.ringo" level="INFO" additivity="false">-->
+        <!--<appender-ref ref="console" ></appender-ref>-->
+    <!--</logger>-->
+    <!--root-logger配置-->
+    <root level="ALL">
+        <appender-ref ref="console" ></appender-ref>
+        <appender-ref ref="db" ></appender-ref>
+        <!--<appender-ref ref="file" ></appender-ref>-->
+        <!--<appender-ref ref="htmlfile"></appender-ref>-->
+        <!--<appender-ref ref="async" ></appender-ref>-->
+    </root>
+</configuration>
+
+
